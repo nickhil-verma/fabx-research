@@ -1,0 +1,56 @@
+services:
+  issuer:
+    build:
+      context: ../fabric-x/samples/tokens
+      dockerfile: Dockerfile
+      args:
+        NODE_TYPE: issuer
+        PLATFORM: "${PLATFORM:-fabricx}"
+    container_name: fabricx_issuer
+    ports:
+      - "9100:9000"
+    volumes:
+      - ./config/issuer:/conf
+
+  endorser:
+    build:
+      context: ../fabric-x/samples/tokens
+      dockerfile: Dockerfile
+      args:
+        NODE_TYPE: endorser
+        PLATFORM: "${PLATFORM:-fabricx}"
+    container_name: fabricx_endorser
+    ports:
+      - "9300:9000"
+    volumes:
+      - ./config/endorser:/conf
+      - ../fabric-x/samples/tokens/conf/namespace/zkatdlognoghv1_pp.json:/namespace/zkatdlognoghv1_pp.json:ro
+
+  owner:
+    build:
+      context: ../fabric-x/samples/tokens
+      dockerfile: Dockerfile
+      args:
+        NODE_TYPE: owner
+        PLATFORM: "${PLATFORM:-fabricx}"
+    container_name: fabricx_owner
+    ports:
+      - "9500:9000"
+    volumes:
+      - ./config/owner:/conf
+
+<% if (config.enableMonitoring) { %>
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: <%= config.network %>_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: <%= config.network %>_grafana
+    ports:
+      - "3000:3000"
+<% } %>

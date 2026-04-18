@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'fabricx'
+    static_configs:
+      - targets: ['orderer:7050','committer:7060','endorser:7070']
