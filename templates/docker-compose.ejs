@@ -1,4 +1,21 @@
 services:
+  committer:
+    image: ghcr.io/hyperledger/fabric-x-committer-test-node:0.1.9
+    container_name: fabricx_committer
+    command: ["run", "db", "orderer", "committer", "--insecure"]
+    ports:
+      - "7050:7050"
+      - "4001:4001"
+      - "7001:7001"
+    volumes:
+      - ../fabric-x/tools/fxconfig/integration/testdata:/root/artifacts:ro
+    networks:
+      fabx_net:
+        aliases:
+          - committer
+          - committer-sidecar
+          - committer-queryservice
+
   issuer:
     build:
       context: ../fabric-x/samples/tokens
@@ -7,10 +24,18 @@ services:
         NODE_TYPE: issuer
         PLATFORM: "${PLATFORM:-fabricx}"
     container_name: fabricx_issuer
+    hostname: issuer.example.com
     ports:
       - "9100:9000"
+      - "9101:9101"
     volumes:
-      - ./config/issuer:/conf
+      - ../config/issuer:/conf
+    networks:
+      fabx_net:
+        aliases:
+          - issuer.example.com
+    depends_on:
+      - committer
 
   endorser:
     build:
@@ -20,11 +45,20 @@ services:
         NODE_TYPE: endorser
         PLATFORM: "${PLATFORM:-fabricx}"
     container_name: fabricx_endorser
+    hostname: endorser1.example.com
     ports:
       - "9300:9000"
+      - "9301:9301"
     volumes:
-      - ./config/endorser:/conf
-      - ../fabric-x/samples/tokens/conf/namespace/zkatdlognoghv1_pp.json:/namespace/zkatdlognoghv1_pp.json:ro
+      - ../config/endorser:/conf
+      - ../config/namespace/zkatdlognoghv1_pp.json:/namespace/zkatdlognoghv1_pp.json:ro
+    networks:
+      fabx_net:
+        aliases:
+          - endorser1.example.com
+    depends_on:
+      - committer
+      - issuer
 
   owner:
     build:
@@ -34,10 +68,20 @@ services:
         NODE_TYPE: owner
         PLATFORM: "${PLATFORM:-fabricx}"
     container_name: fabricx_owner
+    hostname: owner1.example.com
     ports:
       - "9500:9000"
+      - "9501:9501"
     volumes:
-      - ./config/owner:/conf
+      - ../config/owner:/conf
+    networks:
+      fabx_net:
+        aliases:
+          - owner1.example.com
+    depends_on:
+      - committer
+      - issuer
+      - endorser
 
 <% if (config.enableMonitoring) { %>
   prometheus:
@@ -54,3 +98,7 @@ services:
     ports:
       - "3000:3000"
 <% } %>
+
+networks:
+  fabx_net:
+    driver: bridge

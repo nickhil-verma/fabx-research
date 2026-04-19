@@ -19,7 +19,6 @@ export default class Up extends Command {
       const cfg = await readConfig();
       // ensure compose exists
       await gen.generate(cfg);
-
       // verify config presence for required services
       const required = [
         './config/issuer/keys/node.crt',
@@ -29,13 +28,31 @@ export default class Up extends Command {
         './config/owner/keys/node.crt',
         './config/owner/keys/node.key',
       ];
+      // also ensure core config files exist and namespace public params
+      const configFiles = [
+        './config/issuer/core.yaml',
+        './config/endorser/core.yaml',
+        './config/owner/core.yaml',
+        './config/namespace/zkatdlognoghv1_pp.json',
+      ];
       const missing = required.filter(p => !fs.existsSync(p));
       if (missing.length > 0) {
-        this.error('Fabric-X identity not found. Please configure keys in ./config. Missing: ' + missing.join(', '));
+        this.error('Missing Fabric-X identity configuration. Missing: ' + missing.join(', '));
         return;
       }
 
+      const cfgMissing = configFiles.filter(p => !fs.existsSync(p));
+      if (cfgMissing.length > 0) {
+        this.error('Missing runtime config files required by Fabric-X. Missing: ' + cfgMissing.join(', '));
+        return;
+      }
+
+      // cleanup old containers before (best-effort)
+      try { execSync('docker compose -f output/docker-compose.yaml down --remove-orphans', {stdio: 'inherit'}); } catch (e) { /* non-fatal */ }
+
       docker.up();
+      // allow containers a moment to initialize
+      await new Promise(r => setTimeout(r, 1500));
       console.log('Checking container status...');
       const list = docker.listFabricXContainers();
       if (list.length === 0) {
