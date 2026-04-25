@@ -1,5 +1,5 @@
 {
-  "network": "demo",
-  "orgs": 1,
-  "enableMonitoring": false
+    "network":  "demo",
+    "orgs":  1,
+    "enableMonitoring":  true
 }

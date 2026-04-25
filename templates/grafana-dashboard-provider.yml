@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: fabx
+    orgId: 1
+    folder: Fabx
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

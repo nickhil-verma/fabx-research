@@ -73,6 +73,69 @@ Stop the network:
 node ./bin/run.js down
 ```
 
+## Monitoring
+
+Fabx can optionally start a local monitoring stack with:
+
+- Prometheus
+- Blackbox Exporter
+- Grafana
+- a small custom transaction exporter
+
+To enable it, set:
+
+```json
+{
+  "enableMonitoring": true
+}
+```
+
+in `fablo-config.json`, then run:
+
+```bash
+fabx generate
+fabx up
+```
+
+Monitoring endpoints:
+
+- Grafana: `http://localhost:3000`
+- Prometheus: `http://localhost:9090`
+
+Default Grafana credentials:
+
+- username: `admin`
+- password: `admin`
+
+The dashboard focuses on:
+
+- issuer, endorser, and owner health/readiness probes
+- exporter poll health
+- observed owner transaction records
+- observed owner balance
+- transaction record change rate over time
+
+To create transaction activity for the dashboard:
+
+```bash
+curl -X POST http://localhost:9300/endorser/init
+
+curl http://localhost:9100/issuer/issue -d '{
+  "amount": {"code": "TOK", "value": 1000},
+  "counterparty": {"node": "owner1", "account": "alice"},
+  "message": "seed alice"
+}'
+
+curl http://localhost:9500/owner/accounts/alice/transactions
+```
+
+Note:
+
+- the local services do not expose native Prometheus transaction metrics directly
+- Grafana therefore uses:
+  - Prometheus health probes for issuer, endorser, and owner
+  - a custom transaction exporter that polls the owner API and publishes transaction and balance metrics for the dashboard
+
 ## Validation Command
 
 To run the supported MVP scenario automatically:

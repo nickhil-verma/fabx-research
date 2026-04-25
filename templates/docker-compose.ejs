@@ -91,12 +91,68 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      fabx_net:
+        aliases:
+          - prometheus
+    depends_on:
+      - transaction-exporter
+      - blackbox-exporter
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: <%= config.network %>_blackbox_exporter
+    command:
+      - "--config.file=/etc/blackbox_exporter/config.yml"
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    networks:
+      fabx_net:
+        aliases:
+          - blackbox-exporter
+
+  transaction-exporter:
+    image: node:20-alpine
+    container_name: <%= config.network %>_transaction_exporter
+    working_dir: /app
+    command: ["node", "/app/scripts/transaction-exporter.js"]
+    environment:
+      OWNER_API_BASE: http://owner:9000
+      ACCOUNT_ID: alice
+      PORT: "2112"
+      POLL_INTERVAL_MS: "5000"
+    ports:
+      - "2112:2112"
+    volumes:
+      - ../scripts:/app/scripts:ro
+    networks:
+      fabx_net:
+        aliases:
+          - transaction-exporter
+    depends_on:
+      - owner
 
   grafana:
     image: grafana/grafana:latest
     container_name: <%= config.network %>_grafana
     ports:
       - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      fabx_net:
+        aliases:
+          - grafana
+    depends_on:
+      - prometheus
 <% } %>
 
 networks:
