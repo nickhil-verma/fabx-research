@@ -12,6 +12,7 @@
     "start": "node lib/index.js",
     "dev": "ts-node-dev --respawn src/index.ts",
     "check:network": "node ./bin/run.js check",
+    "validate:mvp": "node ./scripts/validate-mvp.js",
     "prepare": "npm run build"
   },
   "dependencies": {

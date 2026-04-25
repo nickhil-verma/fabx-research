@@ -1,7 +1,11 @@
-lib/
-node_modules/
-output/
-dist/
+/lib/
+/node_modules/
+/output/
+/dist/
 .env
-config/
- 
+
+config/**/data/
+config/**/keys/fabric/
+config/**/keys/node.crt
+config/**/keys/node.key
+config/**/keys/wallet/

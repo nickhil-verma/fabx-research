@@ -1,0 +1,3 @@
+{
+  "note": "Public parameters not generated. Run ./fabric-x/samples/tokens/scripts/gen_crypto.sh to generate zkatdlog parameters and keys."
+}
