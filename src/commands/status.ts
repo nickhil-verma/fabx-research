@@ -6,12 +6,20 @@ export default class Status extends Command {
 
   async run(): Promise<void> {
     try {
-      console.log('Checking container status...');
-      const list = docker.listFabricXContainers();
+      this.log('Checking container status...');
+      const health = docker.verifyFabricXNetwork();
+      const list = [...health.running, ...health.exited];
+
       if (list.length === 0) {
         this.log('No Fabric-X containers are running.');
       } else {
-        list.forEach(l => this.log(`${l.name} (${l.image}) - ${l.status}`));
+        list.forEach(container => {
+          this.log(`${container.name} (${container.image}) - ${container.status}`);
+        });
+      }
+
+      if (health.missing.length > 0) {
+        this.log(`Missing containers: ${health.missing.join(', ')}`);
       }
     } catch (err: any) {
       this.error(err.message);
