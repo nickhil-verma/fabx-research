@@ -1,123 +1,172 @@
-# Fabx CLI
 
-Fabx CLI is a wrapper-based MVP that brings a Fablo-style local developer experience to Hyperledger Fabric-X.
+# 🚀 Fabx CLI
 
-The project goal is simple:
+## 📸 Architecture & Network Preview
 
-- reduce setup friction for Fabric-X
-- make local experimentation repeatable
-- provide a small configuration-driven workflow
-- document a practical path toward a future Fablo integration
+### 🏗️ Design Concept
+The following diagram illustrates the transition from infrastructure-heavy manual scripts to a streamlined developer experience.
 
-## What This Repository Delivers
+<img width="1830" height="1042" alt="image" src="https://github.com/user-attachments/assets/bd60788e-1a06-490c-b009-43b9b12eeb51" />
 
-- a design proposal:
-  - [DESIGN_PROPOSAL.md](./DESIGN_PROPOSAL.md)
-- an MVP implementation for a local Fabric-X network
-- an example configuration and workflow:
-  - [examples/basic/README.md](./examples/basic/README.md)
-- a validation script for the MVP scenario
-- contributor and user documentation:
-  - [guide.MD](./guide.MD)
-  - [IMPLEMENTATION.MD](./IMPLEMENTATION.MD)
+---
 
-## Recommended Integration Path
+### 🟢 Network in Action (Operational Snapshots)
+These screenshots demonstrate the **Fabx CLI** successfully managing a live Fabric-X network.
 
-The recommended path is a wrapper-based approach rather than direct Fablo core modification.
+**1. Network Initialization & Service Bootstrapping**
+<img width="2836" height="1344" alt="image" src="https://github.com/user-attachments/assets/159056c3-b4c0-43b2-8e82-794265c99286" />
 
-Why:
+**2. Component Health & Peer Status**
+<img width="2835" height="711" alt="image" src="https://github.com/user-attachments/assets/a4b73efe-122a-4373-a963-89983c269e29" />
 
-- Fabric-X introduces a different architecture from classic Fabric
-- the local workflow can be validated quickly without deep coupling
-- the wrapper keeps the MVP practical while leaving room for future plugin or engine work
+**3. Docker Container Orchestration**
+<img width="2846" height="1321" alt="image" src="https://github.com/user-attachments/assets/22cb181b-103b-4063-b13c-ec3cbf80cc3f" />
 
-See [DESIGN_PROPOSAL.md](./DESIGN_PROPOSAL.md) for the full rationale.
+**4. Transaction Verification & Logs**
+<img width="1805" height="267" alt="image" src="https://github.com/user-attachments/assets/3e8b8af1-3fd7-49ac-af9c-40de5bce2039" />
 
-## MVP Scope
+**5. Successful Network Teardown**
+<img width="2871" height="479" alt="image" src="https://github.com/user-attachments/assets/8654c5ea-6dcd-4d49-9308-497035a6072c" />
 
-The current MVP supports a simple local Fabric-X network with:
+---
 
-- `committer`
-- `issuer`
-- `endorser`
-- `owner`
+## 📖 Overview
 
-Lifecycle commands:
+**Fabx CLI** is a wrapper-based MVP that brings a Fablo-style developer experience to **Hyperledger Fabric-X**. 
 
-- `generate`
-- `up`
-- `check`
-- `status`
-- `down`
+It simplifies the process of running a local Fabric-X network by replacing complex manual setups (like Ansible scripts) with a configuration-driven, **Docker-based workflow**.
 
-## Quick Start
+---
 
-Install dependencies:
+## 🎯 Project Goals
 
+* **Reduce setup friction** for Fabric-X.
+* **Enable fast local experimentation** and rapid prototyping.
+* **Provide a repeatable developer workflow** across different environments.
+* **Abstract Fabric-X complexity** behind a unified CLI.
+* **Serve as a foundation** for future Fablo integration.
+
+---
+
+## 🧩 Repository Structure
+
+| File/Folder | Purpose |
+| :--- | :--- |
+| `DESIGN_PROPOSAL.md` | Detailed architectural design and vision. |
+| `examples/basic/` | Example configuration and getting started workflow. |
+| `bin/` | Core CLI implementation scripts. |
+| `guide.MD` | Comprehensive user documentation. |
+| `IMPLEMENTATION.MD` | Technical deep-dive into the MVP logic. |
+
+---
+
+## 🏗️ Architecture Comparison
+
+### 🔴 Traditional Fabric-X (Ansible-Based)
+* Manual setup using complex Ansible playbooks.
+* Multi-step configuration and heavy dependency management.
+* Tight coupling with specific infrastructure providers.
+* Difficult debugging and slow iteration cycles.
+
+### 🟢 Fabx CLI (Wrapper + Docker-Based)
+* **Single-command** network setup.
+* **Docker Compose-based** orchestration for isolation.
+* **Configuration-driven** via a single `fablo-config.json`.
+* Fast iteration, easy log access, and a developer-first experience.
+
+---
+
+## 📊 Feature Comparison Matrix
+
+| Feature | Traditional Fabric-X | Fabx CLI |
+| :--- | :--- | :--- |
+| **Setup Complexity** | High | Low |
+| **Commands Required** | Multiple scripts | Single CLI command |
+| **Deployment Style** | Infrastructure-heavy | Local Docker-based |
+| **Configuration** | Distributed | Centralized |
+| **Iteration Speed** | Slow | Fast |
+| **Reproducibility** | Low | High |
+| **Use Case** | Production Infrastructure | Dev / Testing / MVP |
+
+---
+
+## 🧠 Key Insight
+
+> **Traditional Fabric-X** = Infrastructure-first approach  
+> **Fabx CLI** = Developer-first approach
+
+---
+
+## ⚙️ MVP Scope
+
+The current MVP supports a local Fabric-X network consisting of the following key components:
+* **Committer**: Validates and commits transactions.
+* **Issuer**: Manages credential issuance.
+* **Endorser**: Handles transaction endorsement logic.
+* **Owner**: Represents the identity-holding entity.
+
+---
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
 ```bash
 npm install
 npm run build
 ```
 
-Generate the local runtime artifact:
+### 2. Lifecycle Commands
+Manage your network using the following sequence:
 
 ```bash
-node ./bin/run.js generate
+node ./bin/run.js generate  # Generate runtime configuration
+node ./bin/up.js           # Start the Fabric-X network
+node ./bin/run.js check     # Verify network health
+node ./bin/run.js status    # Inspect running services
+node ./bin/run.js down      # Stop and clean up the network
 ```
 
-Start the local Fabric-X network:
+---
 
-```bash
-node ./bin/run.js up
-```
+## 🧪 Validation
 
-Verify health:
-
-```bash
-node ./bin/run.js check
-```
-
-Inspect current status:
-
-```bash
-node ./bin/run.js status
-```
-
-Stop the network:
-
-```bash
-node ./bin/run.js down
-```
-
-## Validation
-
-Run the supported MVP scenario end to end:
-
+To run the full MVP validation suite, execute:
 ```bash
 npm run validate:mvp
 ```
+**This script ensures:**
+1. Configuration files are generated correctly.
+2. The network boots successfully.
+3. All services reach a "Healthy" status.
+4. Cleanup procedures work as intended.
 
-This validates that the repo can:
+---
 
-- generate the local runtime config
-- bootstrap the expected Fabric-X services
-- verify the running network
-- cleanly tear the network down
+## 🏛️ Architecture Flow
 
-## Architecture
+1.  **Input:** `fablo-config.json`
+2.  **Process:** `node ./bin/run.js generate`
+3.  **Artifact:** `docker-compose.yaml`
+4.  **Action:** `node ./bin/up.js`
+5.  **Result:** Docker containers start (issuer, endorser, committer, owner)
+6.  **Outcome:** **Fabric-X Network Ready**
 
-The working architecture and implementation flow are explained in:
+---
 
-- [IMPLEMENTATION.MD](./IMPLEMENTATION.MD)
+## 🔮 Recommended Integration Path
 
-## Example Workflow
+This project follows a **wrapper-based approach** rather than modifying the Fablo core directly. 
 
-The example config and workflow are documented in:
+**Why?**
+* **Architecture:** Fabric-X differs significantly from "Classic" Fabric.
+* **Agility:** Faster validation without deep coupling to upstream code.
+* **Modularity:** Keeps the system extensible for future plugin-based integration.
 
-- [examples/basic/README.md](./examples/basic/README.md)
+---
 
-## Notes
-
-- This project targets local development, demos, onboarding, and MVP validation.
-- It does not replace the upstream Fabric-X Ansible collection for distributed deployment.
-- The wrapper-based MVP is intended as the proving ground for a future Fablo integration path.
+## 💡 Future Improvements
+* **Transaction CLI:** `fabx tx` for interacting with the ledger.
+* **Observability:** Built-in benchmarking and performance visualization.
+* **ZK Setup:** Simplified Zero-Knowledge proof setup (`pp.json` generation).
+* **UI Dashboard:** A web-based interface to monitor network health.
+ 
