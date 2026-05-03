@@ -146,12 +146,7 @@ The wrapper-based local architecture was chosen because it:
 
 Files:
 
-- `src/commands/issue.ts`
-- `src/commands/invoke.ts`
-- `src/commands/transfer.ts`
-- `src/commands/redeem.ts`
-- `src/commands/transactions.ts`
-- `src/commands/balance.ts`
+- `src/commands/tx.ts`
 
 Code:
 
@@ -159,31 +154,115 @@ Code:
 
 Responsibility:
 
-- execute transaction operations (issue, invoke, transfer, redeem)
-- manage transaction state and lifecycle
-- track transaction history on the ledger
-- query account balances and asset ownership
-- provide audit trail for all ledger interactions
+- execute token transactions (issue, verify balance, retrieve history)
+- manage transaction state and lifecycle on the Fabric-X ledger
+- initialize Fabric-X token namespace for transaction support
+- query account balances and transaction records
+- provide complete transaction audit trail and verification
+
+## Transaction Command Implementation
+
+### `tx` Command (src/commands/tx.ts)
+
+The `tx` command is the primary interface for executing transactions on Fabric-X.
+
+**Execution Flow**:
+
+1. **Network Verification**: Checks that all Fabric-X services (issuer, endorser, owner, committer) are running
+2. **Namespace Initialization**: Initializes the token namespace on the endorser (unless `--skip-init` is set)
+3. **Token Issuance**: Issues tokens to specified account via the issuer service
+4. **Balance Query**: Retrieves account balance from the owner service
+5. **Transaction History**: Fetches all transaction records for the account
+6. **Response**: Returns issue response, balance, and transaction history
+
+**Key Implementation Details**:
+
+- Uses axios for HTTP communication with Fabric-X services
+- Supports configurable service endpoints (issuer, endorser, owner)
+- Timeout handling: 120 seconds for initialization and issuance, 30 seconds for queries
+- Error handling with detailed HTTP status and response messages
+
+**Request Structure**:
+
+```json
+POST /issuer/issue
+{
+  "amount": {
+    "code": "TOK",
+    "value": 1000
+  },
+  "counterparty": {
+    "node": "owner1",
+    "account": "alice"
+  },
+  "message": "Fabx CLI transaction"
+}
+```
+
+**Response Structure**:
+
+```json
+{
+  "status": 200,
+  "payload": {
+    "txId": "117064678fe8978cea0371df1b1e9fec7351d36f79dfa6185f683a5d3ab09f09",
+    "message": "Token issued successfully"
+  },
+  "transactions": [...],
+  "balance": {...}
+}
+```
 
 ## Transaction Execution Flow
 
 The transaction layer operates as follows:
 
 ```text
-Transaction Command (issue/invoke/transfer/redeem)
+tx Command Invocation
         |
         v
-Fabric-X API Layer (fabricx-api.ts)
+Verify Fabric-X Network Health
         |
         v
-Ledger State Change
+Initialize Token Namespace (if needed)
         |
         v
-Transaction Recorded & Verified
+Issue Tokens via Issuer Service
         |
         v
-Audit Trail / Balance Update
+Query Account Balance from Owner
+        |
+        v
+Retrieve Transaction History
+        |
+        v
+Return Verified Transaction Result
+        |
+        v
+Transaction Complete & Auditable
 ```
+
+## Service Integration Points
+
+### Issuer Service (`http://localhost:9100`)
+- **Endpoint**: `/issuer/issue`
+- **Purpose**: Create and execute token issuance transactions
+- **Input**: Amount (code, value), counterparty (node, account), message
+- **Output**: Transaction ID, confirmation status
+
+### Endorser Service (`http://localhost:9300`)
+- **Endpoint**: `/endorser/init`
+- **Purpose**: Initialize token namespace and setup endorsement policies
+- **Called**: Once per session (unless `--skip-init` is used)
+
+### Owner Service (`http://localhost:9500`)
+- **Endpoint**: `/owner/accounts/{account}` - Get balance
+- **Endpoint**: `/owner/accounts/{account}/transactions` - Get history
+- **Purpose**: Query account balances and transaction records
+
+### Committer Service (`http://localhost:9400`)
+- **Purpose**: Commits validated transactions to the ledger
+- **Called**: Automatically as part of transaction consensus flow
 
 ## Validation Strategy
 

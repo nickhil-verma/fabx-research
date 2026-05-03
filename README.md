@@ -166,21 +166,161 @@ This project follows a **wrapper-based approach** rather than modifying the Fabl
 
 ## � Transaction Execution Flow
 
-The Fabx CLI provides comprehensive transaction management capabilities:
+The Fabx CLI provides comprehensive transaction management capabilities through the **`tx`** command.
 
-### Transaction Lifecycle
-* **Issue**: Create new transactions through the `issue` command.
-* **Invoke**: Execute transactions using the `invoke` command for state changes.
-* **Transfer**: Move assets between participants with the `transfer` command.
-* **Redeem**: Complete transaction cycles with the `redeem` command.
-* **Track**: Monitor transaction history and status with the `transactions` command.
-* **Balance**: Query current account balances using the `balance` command.
+### Quick Start: Execute a Transaction
+
+```bash
+# Default transaction: Issue 1000 TOK to alice on owner1
+node ./bin/run.js tx
+
+# Issue 5000 TOK to bob
+node ./bin/run.js tx --amount 5000 --account bob
+
+# Issue custom token with message
+node ./bin/run.js tx --code USD --amount 500 --account charlie --message "Custom transaction"
+
+# Skip namespace initialization if already initialized
+node ./bin/run.js tx --skip-init
+```
+
+### Transaction Command (`tx`) - Full Reference
+
+**Purpose**: Create and execute Fabric-X token transactions with automatic verification.
+
+**Basic Syntax**:
+```bash
+node ./bin/run.js tx [OPTIONS]
+```
+
+### Available Flags
+
+| Flag | Short | Type | Default | Description |
+|------|-------|------|---------|-------------|
+| `--amount` | `-a` | integer | `1000` | Token quantity to issue |
+| `--code` | `-c` | string | `TOK` | Token code/symbol to issue |
+| `--account` | — | string | `alice` | Owner account receiving tokens |
+| `--node` | — | string | `owner1` | Owner node receiving tokens |
+| `--message` | `-m` | string | `Fabx CLI transaction` | Message attached to transaction |
+| `--issuer` | — | URL | `http://localhost:9100` | Issuer API endpoint |
+| `--endorser` | — | URL | `http://localhost:9300` | Endorser API endpoint |
+| `--owner` | — | URL | `http://localhost:9500` | Owner API endpoint |
+| `--skip-init` | — | boolean | `false` | Skip namespace initialization |
+
+### Transaction Examples
+
+#### 1. Basic Transaction (Using All Defaults)
+```bash
+node ./bin/run.js tx
+# Issues 1000 TOK to alice on owner1 with default message
+# Expected Result: Transaction confirmed, balance verified
+```
+
+#### 2. Issue Multiple Tokens
+```bash
+node ./bin/run.js tx --amount 5000 --code EUR --account david --node owner2
+# Issues 5000 EUR to david on owner2
+```
+
+#### 3. Transaction with Custom Message
+```bash
+node ./bin/run.js tx -a 2500 -c USD -m "Supply Chain Payment"
+# Issues 2500 USD with custom message
+```
+
+#### 4. Skip Initialization (Faster Execution)
+```bash
+# First transaction (initializes namespace)
+node ./bin/run.js tx
+
+# Subsequent transactions (skip init for speed)
+node ./bin/run.js tx --skip-init --amount 3000 --account eve
+```
+
+#### 5. Use Custom Endpoints
+```bash
+node ./bin/run.js tx \
+  --issuer http://custom-issuer:9100 \
+  --endorser http://custom-endorser:9300 \
+  --owner http://custom-owner:9500 \
+  --amount 1000 --account frank
+```
+
+### Transaction Workflow
+
+The `tx` command executes the following steps automatically:
+
+```
+1. Verify network health (all services running)
+   ↓
+2. Initialize Fabric-X token namespace (if --skip-init not set)
+   ↓
+3. Issue tokens to specified account/node
+   ↓
+4. Query account balance
+   ↓
+5. Retrieve transaction history
+   ↓
+6. Return complete transaction details & verification
+```
+
+### Example Output
+
+```
+Initializing Fabric-X token namespace...
+Issuing 1000 TOK to owner1/alice...
+Transaction submitted successfully.
+Issue response: {
+  status: 200,
+  txId: "117064678fe8978cea0371df1b1e9fec7351d36f79dfa6185f683a5d3ab09f09",
+  message: "Token issued successfully"
+}
+Account balance: {
+  account: "alice",
+  code: "TOK",
+  value: 1000,
+  status: "Confirmed"
+}
+Account transactions: [
+  {
+    txId: "117064678fe8978cea0371df1b1e9fec7351d36f79dfa6185f683a5d3ab09f09",
+    type: "issue",
+    amount: 1000,
+    timestamp: "2026-05-03T10:30:45Z"
+  }
+]
+```
+
+### Prerequisites Before Running Transactions
+
+1. **Start the network**:
+   ```bash
+   node ./bin/run.js generate
+   node ./bin/run.js up
+   node ./bin/run.js check  # Verify all services are healthy
+   ```
+
+2. **Verify network status**:
+   ```bash
+   node ./bin/run.js status
+   # Should show: fabricx_issuer, fabricx_endorser, fabricx_owner, fabricx_committer all healthy
+   ```
+
+### Common Issues & Solutions
+
+| Issue | Solution |
+|-------|----------|
+| "Fabric-X network is not fully running" | Run `node ./bin/run.js up` first |
+| "Failed to create transaction" | Check endpoint URLs with `--issuer`, `--endorser`, `--owner` flags |
+| "Namespace initialization timeout" | Increase timeout or use `--skip-init` on retry |
+| "Connection refused" | Verify Docker services are running: `docker ps \| grep fabricx` |
 
 ### Key Transaction Features
 * **Ledger Interaction**: Direct interaction with Fabric-X ledger through CLI commands.
-* **Transaction Verification**: Automatic verification and logging of all transactions.
+* **Automatic Verification**: Verify transaction and balance immediately after execution.
 * **State Management**: Track asset state across participants (Committer, Issuer, Endorser, Owner).
-* **Transaction History**: Comprehensive audit trail of all executed transactions.
+* **Transaction History**: Retrieve complete audit trail of all executed transactions.
+* **Custom Messaging**: Attach messages to transactions for operational context.
 
 ---
 
