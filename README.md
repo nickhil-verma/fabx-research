@@ -164,9 +164,29 @@ This project follows a **wrapper-based approach** rather than modifying the Fabl
 
 ---
 
+## � Transaction Execution Flow
+
+The Fabx CLI provides comprehensive transaction management capabilities:
+
+### Transaction Lifecycle
+* **Issue**: Create new transactions through the `issue` command.
+* **Invoke**: Execute transactions using the `invoke` command for state changes.
+* **Transfer**: Move assets between participants with the `transfer` command.
+* **Redeem**: Complete transaction cycles with the `redeem` command.
+* **Track**: Monitor transaction history and status with the `transactions` command.
+* **Balance**: Query current account balances using the `balance` command.
+
+### Key Transaction Features
+* **Ledger Interaction**: Direct interaction with Fabric-X ledger through CLI commands.
+* **Transaction Verification**: Automatic verification and logging of all transactions.
+* **State Management**: Track asset state across participants (Committer, Issuer, Endorser, Owner).
+* **Transaction History**: Comprehensive audit trail of all executed transactions.
+
+---
+
 ## 💡 Future Improvements
-* **Transaction CLI:** `fabx tx` for interacting with the ledger.
+* **Advanced Transaction Analytics**: Detailed transaction metrics and insights.
 * **Observability:** Built-in benchmarking and performance visualization.
 * **ZK Setup:** Simplified Zero-Knowledge proof setup (`pp.json` generation).
-* **UI Dashboard:** A web-based interface to monitor network health.
+* **UI Dashboard:** A web-based interface to monitor network health and transactions.
  

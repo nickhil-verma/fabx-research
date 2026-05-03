@@ -9,3 +9,6 @@ config/**/keys/fabric/
 config/**/keys/node.crt
 config/**/keys/node.key
 config/**/keys/wallet/
+
+# Ignore fabric-x submodule
+fabric-x/

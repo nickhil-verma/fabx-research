@@ -142,6 +142,49 @@ The wrapper-based local architecture was chosen because it:
 
 - stops the local Fabric-X network
 
+## 5. Transaction Layer
+
+Files:
+
+- `src/commands/issue.ts`
+- `src/commands/invoke.ts`
+- `src/commands/transfer.ts`
+- `src/commands/redeem.ts`
+- `src/commands/transactions.ts`
+- `src/commands/balance.ts`
+
+Code:
+
+- `src/lib/fabricx-api.ts`
+
+Responsibility:
+
+- execute transaction operations (issue, invoke, transfer, redeem)
+- manage transaction state and lifecycle
+- track transaction history on the ledger
+- query account balances and asset ownership
+- provide audit trail for all ledger interactions
+
+## Transaction Execution Flow
+
+The transaction layer operates as follows:
+
+```text
+Transaction Command (issue/invoke/transfer/redeem)
+        |
+        v
+Fabric-X API Layer (fabricx-api.ts)
+        |
+        v
+Ledger State Change
+        |
+        v
+Transaction Recorded & Verified
+        |
+        v
+Audit Trail / Balance Update
+```
+
 ## Validation Strategy
 
 The supported MVP scenario is validated by:
